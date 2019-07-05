@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public static class MeshGenerator {
-    public static MeshData GenerateTerrainMesh(float[,] heightMap, float heightScale, AnimationCurve heightCurve, int levelOfDetail) {
+    public static MeshData GenerateTerrainMesh(float[,] heightMap, float heightScale, AnimationCurve baseHeightCurve, int levelOfDetail) {
         int width = heightMap.GetLength(0);
         int height = heightMap.GetLength(1);
         // for centering on the origin
         float topLeftX = (width - 1) / -2f;
         float topLeftZ = (height - 1) / 2f;
+        AnimationCurve heightCurve = new AnimationCurve(baseHeightCurve.keys);
 
         int meshSimplificationIncrement = (levelOfDetail == 0)? 1 : 2 * levelOfDetail;
         int verticesPerLine = 1 + (width - 1) / meshSimplificationIncrement;
@@ -27,10 +28,10 @@ public static class MeshGenerator {
                     meshData.AddTriangle(br, tl, tr);  // clockwise vertices for upper-right half
                 }
                 meshData.AddVertexUV(new Vector3(topLeftX + x,
-                                                 heightCurve.Evaluate(heightMap[x, y]) * heightScale,
-                                                 topLeftZ - y),
-                                     new Vector2(x / (float)width,
-                                                 y / (float)height));
+                                                heightCurve.Evaluate(heightMap[x, y]) * heightScale,
+                                                topLeftZ - y),
+                                    new Vector2(x / (float)width,
+                                                y / (float)height));
             }
         }
 
